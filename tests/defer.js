@@ -1,7 +1,7 @@
 var assert = require("chai").assert;
 var prow = require("../dist/prow");
 
-describe("Prow", function () {
+describe("Prow Defer", function () {
     it("should create defer object", function () {
         assert.isFunction(prow.defer, 'Prow should have defer method');
 
