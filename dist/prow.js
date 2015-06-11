@@ -12,20 +12,47 @@
             }
             c.resolve = function() {
                 clearTimeout(d);
-                f();
+                f.apply(this, arguments);
             };
             c.reject = function() {
                 clearTimeout(e);
-                g();
+                g.apply(this, arguments);
             };
         });
         return c;
     };
-    a.delay = function(a) {
-        var b = new Promise(function(b, c) {
-            setTimeout(b, a);
+    a.delay = function(a, b) {
+        var c = new Promise(function(c, d) {
+            setTimeout(function() {
+                c(b);
+            }, a);
         });
-        return b;
+        return c;
+    };
+    a.limit = function(a, b) {
+        var c = new Promise(function(c, d) {
+            setTimeout(function() {
+                d(b);
+            }, a);
+        });
+        return c;
+    };
+    a.waterfall = function(b) {
+        var c = b.length;
+        var d = a.defer();
+        var e = function(a, f) {
+            if (a >= c) {
+                d.resolve(f);
+            } else {
+                var g = b[a];
+                g.call(this, f).then(function(b) {
+                    e(++a, b);
+                }, function(a) {
+                    d.reject(a);
+                });
+            }
+        };
+        return d.promise;
     };
     if (typeof module == "object" && module.exports) {
         module.exports = a;
@@ -34,6 +61,6 @@
             return a;
         });
     } else if (typeof window == "object") {
-        window.Prow = a;
+        window.prow = a;
     }
 })();

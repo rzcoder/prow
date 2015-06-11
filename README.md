@@ -7,13 +7,18 @@
 
 ## API
 
-### prow.defer()
+### prow.defer(timeout, timelimit)
 Create deferred object with methods `resolve(result)`, `reject(reason)` and property `promise`.
+
+Promise will resolve automatically after timeout (if specified) or automatically rejected after timelimit (if specified).
 
 ```js
     var deferred = prow.defer();
     deferred.promise.then(function(result) { console.log('hello ' + result); });
     setTimeout(function() { deferred.resolve('world'); }, 1000);
+
+    var deferred = prow.defer(null, 1000);
+    deferred.promise.then(null, function() { console.log('timeout rejected'); });
 ```
 
 
