@@ -17,7 +17,11 @@
     };
 
     prow.nextTick = function (task) {
-        process && process.nextTick ? process.nextTick(task) : setTimeout(task, 0);
+        if (process && process.nextTick) {
+            process.nextTick(task);
+        } else {
+            setTimeout(task, 0);
+        }
     };
 
     /**
@@ -134,7 +138,7 @@
 
         var process = function () {
             if (cursor >= length) {
-                if (inProgress == 0) {
+                if (inProgress === 0) {
                     deferred.resolve();
                 }
                 return;
@@ -176,7 +180,7 @@
         times = times === undefined ? 1 : times;
         var deferred = prow.defer();
         var rejHandler = function (reason) {
-            if (times == 0) {
+            if (times === 0) {
                 deferred.reject(reason);
             } else {
                 process(--times);
