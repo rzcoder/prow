@@ -16,6 +16,10 @@
         }
     };
 
+    prow.nextTick = function (task) {
+        process && process.nextTick ? process.nextTick(task) : setTimeout(task, 0);
+    };
+
     /**
      * Create deferred object
      * @param timeout {int} Timeout in ms. If specified deferred will call resolve after defined time
@@ -166,6 +170,27 @@
      */
     prow.queue = function (tasks) {
         return prow.parallel.call(this, tasks, 1);
+    };
+
+    prow.retry = function (task, times) {
+        times = times === undefined ? 1 : times;
+        var deferred = prow.defer();
+        var rejHandler = function (reason) {
+            if (times == 0) {
+                deferred.reject(reason);
+            } else {
+                process(--times);
+            }
+        };
+
+        var process = function (times) {
+            task.call().then(function (result) {
+                deferred.resolve(result);
+            }, rejHandler).catch(rejHandler);
+        };
+
+        process(--times);
+        return deferred.promise;
     };
 
     /**
