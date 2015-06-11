@@ -2,6 +2,21 @@
     var prow = {};
 
     /**
+     * Return Promise for any data
+     * @param result {Promise|*}
+     * @returns {Promise}
+     */
+    prow.when = function (result) {
+        if (result instanceof Promise && typeof result.then === "function") {
+            return result;
+        } else {
+            var deferred = prow.defer();
+            deferred.resolve(result);
+            return deferred.promise;
+        }
+    };
+
+    /**
      * Create deferred object
      * @param timeout {int} Timeout in ms. If specified deferred will call resolve after defined time
      * @param timelimit {int} Timeout in ms. If specified deferred will call reject after defined time
@@ -28,8 +43,6 @@
                 clearTimeout(timeoutReject);
                 reject.apply(this, arguments);
             };
-
-            throw 'lol'
         });
 
 
@@ -76,26 +89,88 @@
     prow.waterfall = function (tasks) {
         var length = tasks.length;
         var deferred = prow.defer();
-        var process = function (cursor, result) {
-            if (cursor >= length) {
-                deferred.resolve(result);
-            } else {
-                var task = tasks[cursor];
-                task.call(this, result).then(function (result) {
-                    process(++cursor, result);
-                }, function (reason) {
-                    deferred.reject(reason);
-                }).catch(function (err) {
-                    console.log('wrong ' + err);
-                    deferred.throw(err);
-                });
-            }
-        };
 
-        process(0);
+        try {
+            var process = function (cursor, result) {
+                if (cursor >= length) {
+                    deferred.resolve(result);
+                } else {
+                    var task = tasks[cursor];
+
+                    prow.when(task.call(null, result)).then(function (result) {
+                        process(++cursor, result);
+                    }, function (reason) {
+                        deferred.reject(reason);
+                    }).catch(function (err) {
+                        deferred.reject(err);
+                    });
+                }
+            };
+
+            process(0);
+        } catch (err) {
+            deferred.reject(err);
+        }
         return deferred.promise;
     };
 
+    /**
+     * Run the tasks in parallel, without waiting until the previous function has completed. No results passed from promise to promise.
+     * @param tasks {Array} Array of functions which returns promises
+     * @param maxThreads {int} The maximum number of tasks to run at any time. Default: tasks.length
+     * @returns {Promise} Promise which will resolve after all tasks done (resolved o rejected).
+     */
+    prow.parallel = function (tasks, maxThreads) {
+        var length = tasks.length;
+        var deferred = prow.defer();
+        maxThreads = Math.min(maxThreads || length, length);
+
+        var inProgress = 0;
+        var cursor = 0;
+
+        var process = function () {
+            if (cursor >= length) {
+                if (inProgress == 0) {
+                    deferred.resolve();
+                }
+                return;
+            }
+
+            var task = tasks[cursor++];
+            inProgress++;
+            prow.when(task.call()).then(function () {
+                inProgress--;
+                process();
+            }, function () {
+                inProgress--;
+                process();
+            }).catch(function () {
+                inProgress--;
+                process();
+            });
+
+            if (inProgress < maxThreads) {
+                process();
+            }
+        };
+
+        process();
+
+        return deferred.promise;
+    };
+
+    /**
+     * Run the tasks one by one. No results passed from promise to promise.
+     * @param tasks {Array} Array of functions which returns promises
+     * @returns {Promise} Promise which will resolve after all tasks done (resolved o rejected).
+     */
+    prow.queue = function (tasks) {
+        return prow.parallel.call(this, tasks, 1);
+    };
+
+    /**
+     * Module loaders
+     */
     if (typeof module == 'object' && module.exports) {
         module.exports = prow;
     } else if (typeof define == 'function' && define.amd) {

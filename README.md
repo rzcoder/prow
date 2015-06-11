@@ -21,6 +21,15 @@ Promise will resolve automatically after timeout (if specified) or automatically
     deferred.promise.then(null, function() { console.log('timeout rejected'); });
 ```
 
+### prow.waterfall(tasks)
+Runs the tasks array of functions in series, each passing their results to the next in the array. Returns Promise object;
+
+### prow.parallel(tasks, maxThreads)
+Run the tasks in parallel, without waiting until the previous function has completed. No results passed from promise to promise. Returns Promise which will resolve after all tasks done (resolved o rejected).
+
+### prow.queue(tasks)
+Run the tasks one by one. No results passed from promise to promise. Returns Promise which will resolve after all tasks done (resolved o rejected).
+
 
 ## License
 
