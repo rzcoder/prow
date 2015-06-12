@@ -176,6 +176,12 @@
         return prow.parallel.call(this, tasks, 1);
     };
 
+    /**
+     * Attempts to get a successful response from `task` no more than `times` times before returning an error.
+     * @param task {function} Function which return promise
+     * @param times {int} Number of try times, before reject
+     * @returns {Promise} Promise which resolve on first successful try, or reject after defined tries
+     */
     prow.retry = function (task, times) {
         times = times === undefined ? 1 : times;
         var deferred = prow.defer();
@@ -194,6 +200,23 @@
         };
 
         process(--times);
+        return deferred.promise;
+    };
+
+    /**
+     * Calls the `task` function n times, return promise which will resolve with array of promises for each task call
+     * @param task {function} Function which return promise
+     * @param times {int} Number of call times
+     * @returns {Promise}
+     */
+    prow.times = function (task, times) {
+        times = times === undefined ? 1 : times;
+        var results = [];
+        var deferred = prow.defer();
+        for (var i = 0; i < times; i++) {
+            results.push(task.call());
+        }
+        Promise.all(results).then(deferred.resolve.bind(deferred, results));
         return deferred.promise;
     };
 
