@@ -3,15 +3,15 @@
 
     /**
      * Return Promise for any data
-     * @param result {Promise|*}
+     * @param deferreds {Promise|*}
      * @returns {Promise}
      */
-    prow.when = function (result) {
-        if (result instanceof Promise && typeof result.then === "function") {
+    prow.when = function (deferreds) {
+        if (deferreds instanceof Promise && typeof result.then === "function") {
             return result;
         } else {
             var deferred = prow.defer();
-            deferred.resolve(result);
+            deferred.resolve(deferreds);
             return deferred.promise;
         }
     };
@@ -216,7 +216,7 @@
         for (var i = 0; i < times; i++) {
             results.push(task.call());
         }
-        Promise.all(results).then(deferred.resolve.bind(deferred, results));
+        Promise.all(results).then(deferred.resolve.bind(deferred, results), deferred.resolve.bind(deferred, results));
         return deferred.promise;
     };
 

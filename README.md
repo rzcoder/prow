@@ -7,29 +7,14 @@
 
 ## API
 
+###prow.when(deferreds)
+###prow.nextTick(task)
 ### prow.defer(timeout, timelimit)
-Create deferred object with methods `resolve(result)`, `reject(reason)` and property `promise`.
-
-Promise will resolve automatically after timeout (if specified) or automatically rejected after timelimit (if specified).
-
-```js
-    var deferred = prow.defer();
-    deferred.promise.then(function(result) { console.log('hello ' + result); });
-    setTimeout(function() { deferred.resolve('world'); }, 1000);
-
-    var deferred = prow.defer(null, 1000);
-    deferred.promise.then(null, function() { console.log('timeout rejected'); });
-```
-
 ### prow.waterfall(tasks)
-Runs the tasks array of functions in series, each passing their results to the next in the array. Returns Promise object;
-
 ### prow.parallel(tasks, maxThreads)
-Run the tasks in parallel, without waiting until the previous function has completed. No results passed from promise to promise. Returns Promise which will resolve after all tasks done (resolved o rejected).
-
 ### prow.queue(tasks)
-Run the tasks one by one. No results passed from promise to promise. Returns Promise which will resolve after all tasks done (resolved o rejected).
-
+###prow.retry(task, times)
+###prow.times(task, times)
 
 ## License
 
