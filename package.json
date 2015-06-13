@@ -11,6 +11,7 @@
     "url": "https://github.com/rzcoder/prow.git"
   },
   "keywords": [
+    "js",
     "promise",
     "flow"
   ],
