@@ -1,8 +1,8 @@
 (function() {
     var a = {};
     a.when = function(b) {
-        if (b instanceof Promise && typeof b.then === "function") {
-            return b;
+        if (b instanceof Promise && typeof result.then === "function") {
+            return result;
         } else {
             var c = a.defer();
             c.resolve(b);
@@ -129,6 +129,16 @@
         };
         f(--c);
         return d.promise;
+    };
+    a.times = function(b, c) {
+        c = c === undefined ? 1 : c;
+        var d = [];
+        var e = a.defer();
+        for (var f = 0; f < c; f++) {
+            d.push(b.call());
+        }
+        Promise.all(d).then(e.resolve.bind(e, d), e.resolve.bind(e, d));
+        return e.promise;
     };
     if (typeof module == "object" && module.exports) {
         module.exports = a;
