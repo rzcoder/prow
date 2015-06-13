@@ -1,9 +1,10 @@
 {
   "name": "prow",
-  "version": "0.0.2",
+  "version": "0.0.4",
   "description": "JS Promises Flow Lib",
   "main": "dist/prow.js",
   "scripts": {
+    "prepublish" : "grunt",
     "test": "grunt test"
   },
   "repository": {
