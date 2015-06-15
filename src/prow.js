@@ -7,10 +7,21 @@
      * @returns {Promise}
      */
     prow.when = function (deferreds) {
+        var deferred;
         if (deferreds instanceof Promise && typeof deferreds.then === "function") {
-            return deferreds;
+            if (deferreds instanceof Promise) {
+                return deferreds;
+            } else {
+                deferred = prow.defer();
+                deferreds.then(function () {
+                    deferred.resolve.apply(this, arguments);
+                }, function () {
+                    deferred.reject.apply(this, arguments);
+                });
+                return deferred.promise;
+            }
         } else {
-            var deferred = prow.defer();
+            deferred = prow.defer();
             deferred.resolve(deferreds);
             return deferred.promise;
         }
@@ -194,7 +205,7 @@
         };
 
         var process = function (times) {
-            task.call().then(function (result) {
+            prow.when(task.call()).then(function (result) {
                 deferred.resolve(result);
             }, rejHandler).catch(rejHandler);
         };
@@ -214,7 +225,7 @@
         var results = [];
         var deferred = prow.defer();
         for (var i = 0; i < times; i++) {
-            results.push(task.call());
+            results.push(prow.when(task.call()));
         }
         Promise.all(results).then(deferred.resolve.bind(deferred, results), deferred.resolve.bind(deferred, results));
         return deferred.promise;
