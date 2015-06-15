@@ -1,152 +1,152 @@
 (function() {
-    var a = {};
-    a.when = function(b) {
-        if (b instanceof Promise && typeof result.then === "function") {
-            return result;
+    var prow = {};
+    prow.when = function(deferreds) {
+        if (deferreds instanceof Promise && typeof deferreds.then === "function") {
+            return deferreds;
         } else {
-            var c = a.defer();
-            c.resolve(b);
-            return c.promise;
+            var deferred = prow.defer();
+            deferred.resolve(deferreds);
+            return deferred.promise;
         }
     };
-    a.nextTick = function(a) {
+    prow.nextTick = function(task) {
         if (process && process.nextTick) {
-            process.nextTick(a);
+            process.nextTick(task);
         } else {
-            setTimeout(a, 0);
+            setTimeout(task, 0);
         }
     };
-    a.defer = function(a, b) {
-        var c = {};
-        var d, e;
-        c.promise = new Promise(function(f, g) {
-            if (a) {
-                d = setTimeout(f, a);
+    prow.defer = function(timeout, timelimit) {
+        var defer = {};
+        var timeoutResolve, timeoutReject;
+        defer.promise = new Promise(function(resolve, reject) {
+            if (timeout) {
+                timeoutResolve = setTimeout(resolve, timeout);
             }
-            if (b) {
-                e = setTimeout(g, b);
+            if (timelimit) {
+                timeoutReject = setTimeout(reject, timelimit);
             }
-            c.resolve = function() {
-                clearTimeout(d);
-                f.apply(this, arguments);
+            defer.resolve = function() {
+                clearTimeout(timeoutResolve);
+                resolve.apply(this, arguments);
             };
-            c.reject = function() {
-                clearTimeout(e);
-                g.apply(this, arguments);
+            defer.reject = function() {
+                clearTimeout(timeoutReject);
+                reject.apply(this, arguments);
             };
         });
-        return c;
+        return defer;
     };
-    a.delay = function(a, b) {
-        var c = new Promise(function(c, d) {
+    prow.delay = function(timeout, result) {
+        var promise = new Promise(function(resolve, reject) {
             setTimeout(function() {
-                c(b);
-            }, a);
+                resolve(result);
+            }, timeout);
         });
-        return c;
+        return promise;
     };
-    a.limit = function(a, b) {
-        var c = new Promise(function(c, d) {
+    prow.limit = function(timelimit, reason) {
+        var promise = new Promise(function(resolve, reject) {
             setTimeout(function() {
-                d(b);
-            }, a);
+                reject(reason);
+            }, timelimit);
         });
-        return c;
+        return promise;
     };
-    a.waterfall = function(b) {
-        var c = b.length;
-        var d = a.defer();
+    prow.waterfall = function(tasks) {
+        var length = tasks.length;
+        var deferred = prow.defer();
         try {
-            var e = function(f, g) {
-                if (f >= c) {
-                    d.resolve(g);
+            var process = function(cursor, result) {
+                if (cursor >= length) {
+                    deferred.resolve(result);
                 } else {
-                    var h = b[f];
-                    a.when(h.call(null, g)).then(function(a) {
-                        e(++f, a);
-                    }, function(a) {
-                        d.reject(a);
-                    }).catch(function(a) {
-                        d.reject(a);
+                    var task = tasks[cursor];
+                    prow.when(task.call(null, result)).then(function(result) {
+                        process(++cursor, result);
+                    }, function(reason) {
+                        deferred.reject(reason);
+                    }).catch(function(err) {
+                        deferred.reject(err);
                     });
                 }
             };
-            e(0);
-        } catch (f) {
-            d.reject(f);
+            process(0);
+        } catch (err) {
+            deferred.reject(err);
         }
-        return d.promise;
+        return deferred.promise;
     };
-    a.parallel = function(b, c) {
-        var d = b.length;
-        var e = a.defer();
-        c = Math.min(c || d, d);
-        var f = 0;
-        var g = 0;
-        var h = function() {
-            if (g >= d) {
-                if (f === 0) {
-                    e.resolve();
+    prow.parallel = function(tasks, maxThreads) {
+        var length = tasks.length;
+        var deferred = prow.defer();
+        maxThreads = Math.min(maxThreads || length, length);
+        var inProgress = 0;
+        var cursor = 0;
+        var process = function() {
+            if (cursor >= length) {
+                if (inProgress === 0) {
+                    deferred.resolve();
                 }
                 return;
             }
-            var i = b[g++];
-            f++;
-            a.when(i.call()).then(function() {
-                f--;
-                h();
+            var task = tasks[cursor++];
+            inProgress++;
+            prow.when(task.call()).then(function() {
+                inProgress--;
+                process();
             }, function() {
-                f--;
-                h();
+                inProgress--;
+                process();
             }).catch(function() {
-                f--;
-                h();
+                inProgress--;
+                process();
             });
-            if (f < c) {
-                h();
+            if (inProgress < maxThreads) {
+                process();
             }
         };
-        h();
-        return e.promise;
+        process();
+        return deferred.promise;
     };
-    a.queue = function(b) {
-        return a.parallel.call(this, b, 1);
+    prow.queue = function(tasks) {
+        return prow.parallel.call(this, tasks, 1);
     };
-    a.retry = function(b, c) {
-        c = c === undefined ? 1 : c;
-        var d = a.defer();
-        var e = function(a) {
-            if (c === 0) {
-                d.reject(a);
+    prow.retry = function(task, times) {
+        times = times === undefined ? 1 : times;
+        var deferred = prow.defer();
+        var rejHandler = function(reason) {
+            if (times === 0) {
+                deferred.reject(reason);
             } else {
-                f(--c);
+                process(--times);
             }
         };
-        var f = function(a) {
-            b.call().then(function(a) {
-                d.resolve(a);
-            }, e).catch(e);
+        var process = function(times) {
+            task.call().then(function(result) {
+                deferred.resolve(result);
+            }, rejHandler).catch(rejHandler);
         };
-        f(--c);
-        return d.promise;
+        process(--times);
+        return deferred.promise;
     };
-    a.times = function(b, c) {
-        c = c === undefined ? 1 : c;
-        var d = [];
-        var e = a.defer();
-        for (var f = 0; f < c; f++) {
-            d.push(b.call());
+    prow.times = function(task, times) {
+        times = times === undefined ? 1 : times;
+        var results = [];
+        var deferred = prow.defer();
+        for (var i = 0; i < times; i++) {
+            results.push(task.call());
         }
-        Promise.all(d).then(e.resolve.bind(e, d), e.resolve.bind(e, d));
-        return e.promise;
+        Promise.all(results).then(deferred.resolve.bind(deferred, results), deferred.resolve.bind(deferred, results));
+        return deferred.promise;
     };
     if (typeof module == "object" && module.exports) {
-        module.exports = a;
+        module.exports = prow;
     } else if (typeof define == "function" && define.amd) {
         define(function() {
-            return a;
+            return prow;
         });
     } else if (typeof window == "object") {
-        window.prow = a;
+        window.prow = prow;
     }
 })();

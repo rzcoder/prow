@@ -7,8 +7,8 @@
      * @returns {Promise}
      */
     prow.when = function (deferreds) {
-        if (deferreds instanceof Promise && typeof result.then === "function") {
-            return result;
+        if (deferreds instanceof Promise && typeof deferreds.then === "function") {
+            return deferreds;
         } else {
             var deferred = prow.defer();
             deferred.resolve(deferreds);
