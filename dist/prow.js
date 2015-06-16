@@ -123,14 +123,18 @@
     prow.queue = function(tasks) {
         return prow.parallel.call(this, tasks, 1);
     };
-    prow.retry = function(task, times) {
+    prow.retry = function(task, times, delay) {
         times = times === undefined ? 1 : times;
         var deferred = prow.defer();
         var rejHandler = function(reason) {
             if (times === 0) {
                 deferred.reject(reason);
             } else {
-                process(--times);
+                if (delay !== undefined) {
+                    prow.delay(delay).then(process.bind(this, --times));
+                } else {
+                    process(--times);
+                }
             }
         };
         var process = function(times) {
@@ -146,9 +150,9 @@
         var results = [];
         var deferred = prow.defer();
         for (var i = 0; i < times; i++) {
-            results.push(prow.when(task.call()));
+            results.push(task);
         }
-        Promise.all(results).then(deferred.resolve.bind(deferred, results), deferred.resolve.bind(deferred, results));
+        prow.queue(results).then(deferred.resolve.bind(deferred, results), deferred.resolve.bind(deferred, results));
         return deferred.promise;
     };
     if (typeof module == "object" && module.exports) {
