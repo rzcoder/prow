@@ -191,16 +191,21 @@
      * Attempts to get a successful response from `task` no more than `times` times before returning an error.
      * @param task {function} Function which return promise
      * @param times {int} Number of try times, before reject
+     * @param delay {int} Delay in ms between tries
      * @returns {Promise} Promise which resolve on first successful try, or reject after defined tries
      */
-    prow.retry = function (task, times) {
+    prow.retry = function (task, times, delay) {
         times = times === undefined ? 1 : times;
         var deferred = prow.defer();
         var rejHandler = function (reason) {
             if (times === 0) {
                 deferred.reject(reason);
             } else {
-                process(--times);
+                if (delay !== undefined) {
+                    prow.delay(delay).then(process.bind(this, --times));
+                } else {
+                    process(--times);
+                }
             }
         };
 
@@ -225,9 +230,9 @@
         var results = [];
         var deferred = prow.defer();
         for (var i = 0; i < times; i++) {
-            results.push(prow.when(task.call()));
+            results.push(task);
         }
-        Promise.all(results).then(deferred.resolve.bind(deferred, results), deferred.resolve.bind(deferred, results));
+        prow.queue(results).then(deferred.resolve.bind(deferred, results), deferred.resolve.bind(deferred, results));
         return deferred.promise;
     };
 
