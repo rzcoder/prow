@@ -13,7 +13,7 @@
 ### prow.waterfall(tasks)
 ### prow.parallel(tasks, maxThreads)
 ### prow.queue(tasks)
-### prow.retry(task, times)
+### prow.retry(task, times, delay)
 ### prow.times(task, times)
 
 ## License

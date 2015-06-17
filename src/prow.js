@@ -21,9 +21,7 @@
                 return deferred.promise;
             }
         } else {
-            deferred = prow.defer();
-            deferred.resolve(deferreds);
-            return deferred.promise;
+            return Promise.resolve(deferreds);
         }
     };
 
