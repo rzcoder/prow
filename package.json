@@ -1,6 +1,6 @@
 {
   "name": "prow",
-  "version": "0.0.9",
+  "version": "0.0.10",
   "description": "JS Promises Flow Lib",
   "main": "dist/prow.js",
   "scripts": {

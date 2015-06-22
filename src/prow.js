@@ -242,7 +242,7 @@
      * @returns {Promise}
      */
     prow.await = function (condition, checkDelay, timeLimit) {
-        limit = limit || 0;
+        timeLimit = timeLimit || 0;
 
         var rejected = false;
         var timeoutId;
