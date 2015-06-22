@@ -235,6 +235,37 @@
     };
 
     /**
+     * Awaiting while condition function not return positive bool value.
+     * @param condition {fucntion}
+     * @param checkDelay {int} Delay in ms between checks
+     * @param timeLimit {int} Max time awaiting (0 for infinity)
+     * @returns {Promise}
+     */
+    prow.await = function (condition, checkDelay, timeLimit) {
+        limit = limit || 0;
+
+        var rejected = false;
+        var timeoutId;
+        var deferred = prow.defer(null, timeLimit);
+        var check = function() {
+            var res = condition();
+            if (res) {
+                deferred.resolve(res);
+            } else {
+                if (!rejected) {
+                    timeoutId = setTimeout(check, checkDelay);
+                }
+            }
+        };
+        deferred.promise.then(null, function() {
+            rejected = true;
+            clearTimeout(timeoutId);
+        });
+        check();
+        return deferred.promise;
+    };
+
+    /**
      * Module loaders
      */
     if (typeof module == 'object' && module.exports) {

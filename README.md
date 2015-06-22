@@ -15,6 +15,7 @@
 ### prow.queue(tasks)
 ### prow.retry(task, times, delay)
 ### prow.times(task, times)
+### prow.await(condition, checkDelay, timeLimit)
 
 ## License
 

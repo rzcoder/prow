@@ -153,6 +153,28 @@
         prow.queue(results).then(deferred.resolve.bind(deferred, results), deferred.resolve.bind(deferred, results));
         return deferred.promise;
     };
+    prow.await = function(condition, checkDelay, timeLimit) {
+        limit = limit || 0;
+        var rejected = false;
+        var timeoutId;
+        var deferred = prow.defer(null, timeLimit);
+        var check = function() {
+            var res = condition();
+            if (res) {
+                deferred.resolve(res);
+            } else {
+                if (!rejected) {
+                    timeoutId = setTimeout(check, checkDelay);
+                }
+            }
+        };
+        deferred.promise.then(null, function() {
+            rejected = true;
+            clearTimeout(timeoutId);
+        });
+        check();
+        return deferred.promise;
+    };
     if (typeof module == "object" && module.exports) {
         module.exports = prow;
     } else if (typeof define == "function" && define.amd) {
