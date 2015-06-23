@@ -135,9 +135,9 @@
      * Run the tasks in parallel, without waiting until the previous function has completed. No results passed from promise to promise.
      * @param tasks {Array} Array of functions which returns promises
      * @param maxThreads {int} The maximum number of tasks to run at any time. Default: tasks.length
-     * @returns {Promise} Promise which will resolve after all tasks done (resolved o rejected).
+     * @returns {Promise|Que Control Api} Promise which will resolve after all tasks done (resolved o rejected) OR Object for controlling tasks que
      */
-    prow.parallel = function (tasks, maxThreads) {
+    prow.parallel = function (tasks, maxThreads, managed) {
         var length = tasks.length;
         var deferred = prow.defer();
         maxThreads = Math.min(maxThreads || length, length);
@@ -173,7 +173,25 @@
 
         process();
 
-        return deferred.promise;
+        if (!managed) {
+            return deferred.promise;
+        } else {
+            return {
+                addTasks: function(newTasks) {
+                    if (tasks) {
+                        if (Array.isArray(newTasks)) {
+                            tasks = tasks.concat(newTasks);
+                        } else {
+                            tasks.push(newTasks);
+                        }
+                    }
+
+                    length = tasks.length;
+                },
+
+                promise: deferred.promise
+            };
+        }
     };
 
     /**

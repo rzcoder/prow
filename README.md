@@ -11,7 +11,7 @@
 ### prow.nextTick(task)
 ### prow.defer(timeout, timelimit)
 ### prow.waterfall(tasks)
-### prow.parallel(tasks, maxThreads)
+### prow.parallel(tasks, maxThreads, managed)
 ### prow.queue(tasks)
 ### prow.retry(task, times, delay)
 ### prow.times(task, times)

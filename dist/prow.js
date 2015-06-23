@@ -86,7 +86,7 @@
         }
         return deferred.promise;
     };
-    prow.parallel = function(tasks, maxThreads) {
+    prow.parallel = function(tasks, maxThreads, managed) {
         var length = tasks.length;
         var deferred = prow.defer();
         maxThreads = Math.min(maxThreads || length, length);
@@ -116,7 +116,23 @@
             }
         };
         process();
-        return deferred.promise;
+        if (!managed) {
+            return deferred.promise;
+        } else {
+            return {
+                addTasks: function(newTasks) {
+                    if (tasks) {
+                        if (Array.isArray(newTasks)) {
+                            tasks = tasks.concat(newTasks);
+                        } else {
+                            tasks.push(newTasks);
+                        }
+                    }
+                    length = tasks.length;
+                },
+                promise: deferred.promise
+            };
+        }
     };
     prow.queue = function(tasks) {
         return prow.parallel.call(this, tasks, 1);
@@ -154,7 +170,7 @@
         return deferred.promise;
     };
     prow.await = function(condition, checkDelay, timeLimit) {
-        limit = limit || 0;
+        timeLimit = timeLimit || 0;
         var rejected = false;
         var timeoutId;
         var deferred = prow.defer(null, timeLimit);
