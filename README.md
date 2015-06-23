@@ -12,7 +12,7 @@
 ### prow.defer(timeout, timelimit)
 ### prow.waterfall(tasks)
 ### prow.parallel(tasks, maxThreads, managed)
-### prow.queue(tasks)
+### prow.queue(tasks, managed)
 ### prow.retry(task, times, delay)
 ### prow.times(task, times)
 ### prow.await(condition, checkDelay, timeLimit)

@@ -120,7 +120,7 @@
             return deferred.promise;
         } else {
             return {
-                addTasks: function(newTasks) {
+                push: function(newTasks) {
                     if (tasks) {
                         if (Array.isArray(newTasks)) {
                             tasks = tasks.concat(newTasks);
@@ -134,8 +134,8 @@
             };
         }
     };
-    prow.queue = function(tasks) {
-        return prow.parallel.call(this, tasks, 1);
+    prow.queue = function(tasks, managed) {
+        return prow.parallel.call(this, tasks, 1, managed);
     };
     prow.retry = function(task, times, delay) {
         times = times === undefined ? 1 : times;

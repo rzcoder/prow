@@ -177,7 +177,7 @@
             return deferred.promise;
         } else {
             return {
-                addTasks: function(newTasks) {
+                push: function(newTasks) {
                     if (tasks) {
                         if (Array.isArray(newTasks)) {
                             tasks = tasks.concat(newTasks);
@@ -199,8 +199,8 @@
      * @param tasks {Array} Array of functions which returns promises
      * @returns {Promise} Promise which will resolve after all tasks done (resolved o rejected).
      */
-    prow.queue = function (tasks) {
-        return prow.parallel.call(this, tasks, 1);
+    prow.queue = function (tasks, managed) {
+        return prow.parallel.call(this, tasks, 1, managed);
     };
 
     /**
