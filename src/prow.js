@@ -62,7 +62,6 @@
             };
         });
 
-
         return defer;
     };
 
