@@ -8,9 +8,9 @@
             } else {
                 deferred = prow.defer();
                 deferreds.then(function() {
-                    deferred.resolve.apply(this, arguments);
+                    deferred.resolve.apply(this);
                 }, function() {
-                    deferred.reject.apply(this, arguments);
+                    deferred.reject.apply(this);
                 });
                 return deferred.promise;
             }
@@ -37,11 +37,11 @@
             }
             defer.resolve = function() {
                 clearTimeout(timeoutResolve);
-                resolve.apply(this, arguments);
+                resolve.apply(this);
             };
             defer.reject = function() {
                 clearTimeout(timeoutReject);
-                reject.apply(this, arguments);
+                reject.apply(this, [ "PROW TIMEOUT" ]);
             };
         });
         return defer;
