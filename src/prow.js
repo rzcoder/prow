@@ -14,9 +14,9 @@
             } else {
                 deferred = prow.defer();
                 deferreds.then(function () {
-                    deferred.resolve.apply(this);
+                    deferred.resolve.apply(this, arguments);
                 }, function () {
-                    deferred.reject.apply(this);
+                    deferred.reject.apply(this, arguments);
                 });
                 return deferred.promise;
             }
@@ -53,7 +53,7 @@
 
             defer.resolve = function () {
                 clearTimeout(timeoutResolve);
-                resolve.apply(this);
+                resolve.apply(this, arguments);
             };
 
             defer.reject = function () {
