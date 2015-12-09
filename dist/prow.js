@@ -33,7 +33,7 @@
                 timeoutResolve = setTimeout(resolve, timeout);
             }
             if (timelimit) {
-                timeoutReject = setTimeout(reject, timelimit);
+                timeoutReject = setTimeout(reject.bind(this, "PROW TIMEOUT"), timelimit);
             }
             defer.resolve = function() {
                 clearTimeout(timeoutResolve);
@@ -41,7 +41,7 @@
             };
             defer.reject = function() {
                 clearTimeout(timeoutReject);
-                reject.apply(this, [ "PROW TIMEOUT" ]);
+                reject.apply(this);
             };
         });
         return defer;
