@@ -1,6 +1,5 @@
 .DS_Store
 .idea
 .tmp
-tmp
+todo.md
 node_modules
-*.log
