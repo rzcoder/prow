@@ -1,17 +1,19 @@
-import {
-    Task, Tasks
+export {
+    Task, Tasks, TimeoutError
 } from "./types";
 
-export function waterfall(tasks: Tasks): Promise<any> {
-    if (tasks.length === 0) {
-        return Promise.resolve();
-    }
+export {delay} from "./functions/delay";
+export {timeout} from "./functions/timeout";
+export {waterfall} from "./functions/waterfall";
+export {retry} from "./functions/retry";
 
-    let promise = tasks[0]();
-    if (tasks.length > 1) {
-        for (const task of tasks) {
-            promise = promise.then(task);
-        }
-    }
-    return promise;
-}
+
+
+
+
+
+
+
+
+
+
