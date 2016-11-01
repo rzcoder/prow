@@ -1,8 +1,8 @@
 import {
-    Task, TimeoutError
+    ITask, TimeoutError
 } from "../types";
 
-export function timeout(time: number, task: Task): Promise<any> {
+export function timeout(time: number, task: ITask): Promise<any> {
     return new Promise(function (resolve, reject) {
         const timeout = setTimeout(reject.bind(null, new TimeoutError()), time);
         task().then((result) => {

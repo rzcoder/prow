@@ -20,8 +20,10 @@
   ],
   "scripts": {
     "build": "tsc",
+    "pretest": "npm run lint",
     "test": "mocha",
-    "lint": "tslint --project ./"
+    "lint": "tslint --project ./",
+    "prepublish": "npm run lint && npm run build && mocha"
   },
   "devDependencies": {
     "chai": "^3.5.0",

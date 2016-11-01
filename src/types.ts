@@ -1,7 +1,8 @@
-export interface Task {
-    (...args: any[]): Promise<any>
+export interface ITask {
+    (...args: any[]): Promise<any>;
 }
-export type Tasks = Task[];
 
-export class TimeoutError extends Error{
+export type Tasks = ITask[];
+
+export class TimeoutError extends Error {
 }
