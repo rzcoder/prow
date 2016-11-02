@@ -78,7 +78,7 @@ describe("Parallel", function () {
         return assert.becomes(prow.parallel(tasks), [10, 9, 8, 7, 6, 5, 4, 3, 2, 1]);
     });
 
-    it("parallel 2 threads wit rejects", function () {
+    it("parallel 2 threads with rejects", function () {
         const tasks = [];
         let counter = 0;
         for (let i = 0; i < 10; i++) {
