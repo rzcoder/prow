@@ -23,7 +23,7 @@
     "pretest": "npm run lint",
     "test": "mocha",
     "lint": "tslint --project ./",
-    "prepublish": "npm run lint && npm run build && mocha"
+    "prepublish": "npm run build"
   },
   "devDependencies": {
     "chai": "^3.5.0",
