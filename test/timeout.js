@@ -2,7 +2,7 @@ const _ = require("lodash");
 const chai = require("chai");
 const chaiAsPromised = require("chai-as-promised");
 chai.use(chaiAsPromised);
-const {assert, expect} = chai;
+const {assert} = chai;
 const prow = require("../lib/prow");
 
 function resolvePromise(value) {
@@ -21,14 +21,14 @@ function rejectPromise(value) {
 }
 describe("Timeout", function () {
     it("resolve value", function () {
-        return assert.becomes(prow.timeout(100, resolvePromise(42)), 42);
+        return assert.becomes(prow.timeout(resolvePromise(42), 100), 42);
     });
 
     it("reject promise value", function () {
-        return assert.isRejected(prow.timeout(100, rejectPromise(24)), 24);
+        return assert.isRejected(prow.timeout(rejectPromise(24), 100), 24);
     });
 
     it("reject by timeout", function () {
-        return assert.isRejected(prow.timeout(10, () => prow.delay(20, 300)), prow.TimeoutError);
+        return assert.isRejected(prow.timeout(() => prow.delay(20, 300), 10), prow.TimeoutError);
     });
 });

@@ -2,7 +2,7 @@ const _ = require("lodash");
 const chai = require("chai");
 const chaiAsPromised = require("chai-as-promised");
 chai.use(chaiAsPromised);
-const {assert, expect} = chai;
+const {assert} = chai;
 const prow = require("../lib/prow");
 
 describe("Delay", function () {
@@ -14,7 +14,7 @@ describe("Delay", function () {
         const start = process.hrtime();
         return assert.becomes(prow.delay(160, 300), 300).then(() => {
             const time = process.hrtime(start);
-            assert.approximately(time[0] * 100000000 + time[1], 160000000, 5000000)
+            assert.approximately(time[0] * 100000000 + time[1], 160000000, 6000000)
         });
     });
 
@@ -22,7 +22,7 @@ describe("Delay", function () {
         const start = process.hrtime();
         return assert.becomes(prow.delay(1050, 300), 300).then(() => {
             const time = process.hrtime(start);
-            assert.approximately(time[0] * 1000000000 + time[1], 1050000000, 5000000)
+            assert.approximately(time[0] * 1000000000 + time[1], 1050000000, 6000000)
         });
     });
 });
