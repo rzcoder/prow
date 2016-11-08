@@ -1,4 +1,3 @@
-/// <reference types="node" />
 export interface ITask {
     (...args: any[]): Promise<any>;
 }

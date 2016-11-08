@@ -12,14 +12,12 @@ import * as prow from "../prow";
  * @returns Promise
  */
 export function await(condition: ITask, delay: number, timeout: number = -1): Promise<any> {
-    const promise = new Promise(function (resolve) {
+    return new Promise(function (resolve, reject) {
         const conditionHandler = (result) => {
             if (result) {
                 resolve();
             }
         };
-        prow.retry(condition, -1, delay).then(conditionHandler);
+        prow.retry(condition, -1, delay, timeout).then(conditionHandler).catch(reject);
     });
-
-    return prow.timeout(() => promise, timeout);
 }

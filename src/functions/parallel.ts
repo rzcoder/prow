@@ -18,11 +18,11 @@ function promiseHandler (index: number, data: any) {
     if (this.processes === 0 && index === this.tasks.length - 1) {
         this.resolve(this.results);
     } else {
-        execute(this);
+        process(this);
     }
 }
 
-function execute(scope: IScope) {
+function process(scope: IScope) {
     if (scope.processes < scope.maxThreads && scope.pointer < scope.tasks.length) {
         const handler = promiseHandler.bind(scope, scope.pointer);
         scope.tasks[scope.pointer]().then(handler, handler);
@@ -50,7 +50,7 @@ export function parallel(tasks: Tasks, maxThreads: number = tasks.length): Promi
         for (let i = 0; i < maxThreads && i < tasks.length; i++) {
             scope.resolve = resolve;
             scope.reject = reject;
-            execute(scope);
+            process(scope);
         }
     });
 }
